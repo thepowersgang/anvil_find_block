@@ -36,13 +36,10 @@ void *inflate_buffer(const void *Buffer, size_t Len, size_t *OutLenP)
 {
 	char	*ret = NULL;
 	size_t	retLen = 0;
-	z_stream	strm;
+	z_stream	strm = {};
 	 int	rv;
 	
 	// allocate inflate state
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
 	strm.avail_in = Len;
 	strm.next_in = (void*)Buffer;
 	rv = inflateInit(&strm);
@@ -67,6 +64,7 @@ void *inflate_buffer(const void *Buffer, size_t Len, size_t *OutLenP)
 		default:
 			fprintf(stderr, "zlib error: %s\n", zlib_errstr(rv));
 			free(ret);
+			inflateEnd(&strm);
 			return NULL;
 		}
 		
@@ -77,7 +75,9 @@ void *inflate_buffer(const void *Buffer, size_t Len, size_t *OutLenP)
 		retLen += have;
 	} while( strm.avail_out == 0 );
 
-	*OutLenP = retLen;	
+	inflateEnd(&strm);
+
+	*OutLenP = retLen;
 	return ret;
 }
 

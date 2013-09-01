@@ -168,7 +168,7 @@ tNBT *NBT_int_LoadTag(tBuf *Buffer, uint8_t Tag, const char *Name)
 	case TAG_List: {
 		uint8_t	list_tag = _readInt8(Buffer);
 		size_t len = _readInt32(Buffer);
-		tNBT_List *list = malloc(sizeof(tNBT_ByteArray) + len*sizeof(tNBT*));
+		tNBT_List *list = malloc(sizeof(tNBT_List) + len*sizeof(tNBT*));
 		ret = &list->Header;
 		list->Count = len;
 		for( int i = 0; i < len; i ++ ) {

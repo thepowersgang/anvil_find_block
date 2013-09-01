@@ -102,9 +102,10 @@ tAnvilChunk *Anvil_GetRegionChunk(tAnvilRegion *Region, int X, int Z)
 		return NULL;
 	}
 
-	void *compressed_data = calloc(1, stored_len-1);
+	stored_len -= 1;
+	void *compressed_data = calloc(1, stored_len);
 	assert(compressed_data);
-	fread(compressed_data, 1, stored_len-1, Region->FP);
+	fread(compressed_data, 1, stored_len, Region->FP);
 
 	size_t	uncompressed_len;
 	void	*uncompressed_data;
@@ -114,7 +115,7 @@ tAnvilChunk *Anvil_GetRegionChunk(tAnvilRegion *Region, int X, int Z)
 		assert(ver != VERSION_GZIP);
 		break;
 	case VERSION_DEFLATE:
-		uncompressed_data = inflate_buffer(compressed_data, stored_len-1, &uncompressed_len);
+		uncompressed_data = inflate_buffer(compressed_data, stored_len, &uncompressed_len);
 		assert(uncompressed_data);
 		break;
 	default:
@@ -173,5 +174,7 @@ tAnvilChunk *Anvil_GetRegionChunk(tAnvilRegion *Region, int X, int Z)
 
 void Anvil_FreeChunk(tAnvilChunk *Chunk)
 {
-	
+	for( int i = 0; i < Chunk->nSections; i ++ )
+		free(Chunk->Sections[i]);
+	free(Chunk);
 }
