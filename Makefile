@@ -1,7 +1,7 @@
 
 CFLAGS := -Wall -std=gnu99 -g
 LDFLAGS := -g
-LIBS := -lz
+LIBS := -lz -lpthread
 
 BIN := blockfind_anvil
 OBJ := main.o anvil.o compression.o nbt.o

@@ -9,6 +9,9 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <pthread.h>
+#include <semaphore.h>
+
 #define ANVIL_EXT	".mca"
 #define ANVIL_EXT_LEN	4
 
@@ -22,9 +25,13 @@ const char *gsRegionDir;	// directory containing region data
 uint16_t	giDesiredBlockId = BOOKSELF_BLOCKID;
 bool	gbHaveDesiredData;
 uint16_t	giDesiredDataValue;
+ int	giNumThreads;
+
+sem_t	gThreadSem;
 
  int	ParseCommandline(int argc, char *argv[]);
-void	SearchRegionFile(const char *dir, const char *file);
+void	*WorkerThread(void *arg);
+void	SearchRegionFile(const char *path);
 void	SearchChunk(tAnvilChunk *chunkdata);
 void	CheckIfIsDesiredBlock(tAnvilChunk *chunk, tAnvilChunkSect *sectp, size_t ofs, int x, int y, int z);
 
@@ -39,7 +46,12 @@ int main(int argc, char *argv[])
 //		fprintf(stderr, "Cannot open level file '%s'\n", gsLevelDotDat);
 //		return 1;
 //	}
-	
+
+	if( giNumThreads > 1 )
+	{
+		sem_init(&gThreadSem, 0, giNumThreads);
+	}	
+
 	DIR	*dp = opendir(gsRegionDir);
 	struct dirent *de;
 	while( (de = readdir(dp)) )
@@ -49,10 +61,28 @@ int main(int argc, char *argv[])
 			continue ;
 		if( strcmp(de->d_name + len-ANVIL_EXT_LEN, ANVIL_EXT) != 0 )
 			continue ;
+
+		char path[ strlen(gsRegionDir) + 1 + strlen(de->d_name) + 1 ];
+		snprintf(path, sizeof(path), "%s/%s", gsRegionDir, de->d_name);
 		
-		SearchRegionFile(gsRegionDir, de->d_name);
+		if( giNumThreads > 1 )
+		{
+			sem_wait(&gThreadSem);
+			pthread_t	unused;
+			pthread_create(&unused, NULL, WorkerThread, strdup(path));
+		}
+		else
+		{
+			SearchRegionFile(path);
+		}
 	}
-	
+
+	if( giNumThreads > 1 )
+	{
+		for( int i = 0; i < giNumThreads; i ++ )
+			sem_wait(&gThreadSem);
+	}
+
 	return 0;
 }
 
@@ -90,6 +120,9 @@ int ParseCommandline(int argc, char *argv[])
 				case 'b':
 					giDesiredBlockId = atoi(argv[++i]);
 					break;
+				case 't':
+					giNumThreads = atoi(argv[++i]);
+					break;
 				default:
 					Usage(argv[0]);
 					return 1;
@@ -111,11 +144,15 @@ int ParseCommandline(int argc, char *argv[])
 	return 0;
 }
 
-void SearchRegionFile(const char *dir, const char *file)
+void *WorkerThread(void *arg)
 {
-	char path[ strlen(dir) + 1 + strlen(file) + 1 ];
-	snprintf(path, sizeof(path), "%s/%s", dir, file);
-	
+	SearchRegionFile(arg);
+	free(arg);
+	sem_post(&gThreadSem);
+}
+
+void SearchRegionFile(const char *path)
+{
 	tAnvilRegion *rgn = Anvil_LoadRegion(path);
 	
 	for( int x = 0; x < CHUNK_X_PER_RGN; x ++ )
