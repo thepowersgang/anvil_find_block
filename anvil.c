@@ -45,8 +45,6 @@ tAnvilRegion *Anvil_LoadRegion(const char *Path)
 {
 	FILE	*fp = fopen(Path, "rb");
 
-	printf("Path = %s\n", Path);	
-
 	fseek(fp, 0, SEEK_END);
 	int nSectors = (ftell(fp) + SECTOR_BYTES-1) / SECTOR_BYTES;
 	fseek(fp, 0, SEEK_SET);
@@ -143,7 +141,7 @@ tAnvilChunk *Anvil_GetRegionChunk(tAnvilRegion *Region, int X, int Z)
 		tAnvilChunkSect	*sect = malloc( sizeof(tAnvilChunkSect) );
 		ret->Sections[sidx] = sect;
 		assert(sect);
-		sect->Y = NBT_GetInt(nbt_sect, "Y");
+		sect->Y = NBT_GetByte(nbt_sect, "Y");
 		
 		// Block IDs
 		tNBT_ByteArray *nbt_blocks = NBT_GetByteArray(nbt_sect, "Blocks");

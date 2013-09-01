@@ -240,28 +240,37 @@ tNBT *NBT_GetTag(tNBT *Parent, const char *Name)
 	return NULL;
 }
 
-int32_t	NBT_GetInt(tNBT *Parent, const char *Name)
+tNBT *NBT_int_GetTag_Type(tNBT *Parent, const char *Name, enum eNBTTags Tag)
 {
 	tNBT	*tag = NBT_GetTag(Parent, Name);
-	if(!tag || tag->Tag != TAG_Int)
-		return 0;
-	return ((tNBT_Int*)tag)->Value;
+	if( tag && tag->Tag != Tag )
+	{
+		fprintf(stderr, "Type mismatch getting tag '%s', exp %i got %i\n",
+			Name, Tag, tag->Tag);
+		return NULL;
+	}
+	return tag;
+}
+
+int32_t	NBT_GetInt(tNBT *Parent, const char *Name)
+{
+	tNBT	*tag = NBT_int_GetTag_Type(Parent, Name, TAG_Int);
+	return tag ? ((tNBT_Int*)tag)->Value : 0;
+}
+int8_t NBT_GetByte(tNBT *Parent, const char *Name)
+{
+	tNBT	*tag = NBT_int_GetTag_Type(Parent, Name, TAG_Byte);
+	return tag ? ((tNBT_Int*)tag)->Value : 0;
 }
 
 tNBT_ByteArray *NBT_GetByteArray(tNBT *Parent, const char *Name)
 {
-	tNBT *tag = NBT_GetTag(Parent, Name);
-	if(!tag || tag->Tag != TAG_Byte_Array)
-		return NULL;
-	return (void*)tag;
+	return (void*)NBT_int_GetTag_Type(Parent, Name, TAG_Byte_Array);
 }
 
 tNBT_List *NBT_GetList(tNBT *Parent, const char *Name)
 {
-	tNBT *tag = NBT_GetTag(Parent, Name);
-	if(!tag || tag->Tag != TAG_List)
-		return NULL;
-	return (void*)tag;
+	return (void*)NBT_int_GetTag_Type(Parent, Name, TAG_List);
 }
 
 tNBT *NBT_GetListItem(tNBT_List *List, int Index)

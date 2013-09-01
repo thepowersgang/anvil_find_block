@@ -54,6 +54,7 @@ extern void	NBT_Release(tNBT *NBT);
 
 extern tNBT	*NBT_GetTag(tNBT *Parent, const char *Name);
 extern int32_t	NBT_GetInt(tNBT *Parent, const char *Name);
+extern int8_t	NBT_GetByte(tNBT *Parent, const char *Name);
 extern tNBT_ByteArray	*NBT_GetByteArray(tNBT *Parent, const char *Name);
 extern tNBT_List	*NBT_GetList(tNBT *Parent, const char *Name);
 

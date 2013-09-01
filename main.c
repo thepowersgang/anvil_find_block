@@ -193,13 +193,13 @@ void SearchChunk(tAnvilChunk *chunkdata)
 void CheckIfIsDesiredBlock(tAnvilChunk *chunk, tAnvilChunkSect *sectp, size_t ofs, int x, int y, int z)
 {
 	// TODO: allow searching for multiple block IDs
-	if( sectp->Blocks[ofs] == giDesiredBlockId )
-	{
-		if( gbHaveDesiredData && sectp->DataVals[ofs] == giDesiredDataValue )
-		{
-			printf("Found %x:%x at XZY %i,%i,%i\n",
-				sectp->Blocks[ofs], sectp->DataVals[ofs],
-				chunk->CX*CHUNK_W + x, chunk->CZ*CHUNK_W + z, sectp->Y*16 + y);
-		}
-	}
+	if( sectp->Blocks[ofs] != giDesiredBlockId )
+		return ;
+
+	if( gbHaveDesiredData && sectp->DataVals[ofs] != giDesiredDataValue )
+		return ;
+	
+	printf("Found %x:%x at XZY %i,%i,%i\n",
+		sectp->Blocks[ofs], sectp->DataVals[ofs],
+		chunk->CX*CHUNK_W + x, chunk->CZ*CHUNK_W + z, sectp->Y*16 + y);
 }
