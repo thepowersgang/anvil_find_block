@@ -1,4 +1,9 @@
 /*
+ * Anvil block finder
+ * - By John Hodge (thePowersGang)
+ * 
+ * nbt.c
+ * - Named Binary Tag format handling
  */
 #include "nbt.h"
 #include <string.h>

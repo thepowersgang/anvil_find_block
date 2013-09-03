@@ -1,6 +1,11 @@
 /*
  * Anvil block finder
- * By John Hodge (thePowersGang)
+ * - By John Hodge (thePowersGang)
+ * 
+ * anvil.c
+ * - Anvil map format reader
+ *
+ * Loads chunks from a .mca file
  */
 #include <stdio.h>
 #include "anvil.h"

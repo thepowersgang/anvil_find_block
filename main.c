@@ -1,6 +1,9 @@
 /*
  * Anvil block finder
- * By John Hodge (thePowersGang)
+ * - By John Hodge (thePowersGang)
+ * 
+ * main.c
+ * - Program core
  */
 #include <stdio.h>
 #include <stdlib.h>

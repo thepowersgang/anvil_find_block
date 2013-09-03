@@ -1,4 +1,9 @@
 /*
+ * Anvil block finder
+ * - By John Hodge (thePowersGang)
+ *
+ * compression.c
+ * - Decompression shims 
  */
 #include "compression.h"
 #include <zlib.h>
